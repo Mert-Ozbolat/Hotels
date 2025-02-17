@@ -1,32 +1,41 @@
+import { useQuery } from '@tanstack/react-query'
 import { FC } from 'react'
+import { useParams } from 'react-router-dom'
+import { getPlace } from '../../utils/service'
+import Loader from '../../conponents/loader'
+import Error from '../../conponents/error'
+import Return from './return'
 
 const Detail: FC = () => {
+    const { id } = useParams()
+
+    const { isLoading, error, data, refetch } = useQuery({
+        queryKey: ['place'],
+        queryFn: () => getPlace(id as string)
+    })
+
+    if (isLoading) return (<div>
+        <Return />
+        <Loader />
+    </div>)
+
     return (
-        <form className='flex flex-col gap-4 lg:gap-10'>
-            <div className='field'>
-                <label>Nereye</label>
-                <select className='input'>
-                    <option value="">Seçiniz</option>
-                </select>
-            </div>
-
-            <div className='field'>
-                <label>Konaklama Yeri Adına göre ara</label>
-                <input type="text" placeholder='Seaside Villa' className='input' />
-            </div>
-
-            <div className='field'>
-                <label>Nereye</label>
-                <select className='input'>
-                    <option value="">Seçiniz</option>
-                </select>
-            </div>
-
-            <div className='flex justify-end'>
-                <button type='reset' className='bg-blue-500 p-1 px-4 text-white rounded-md w-fit'>Filtreleri Temizle</button>
-
-            </div>
-        </form>
+        <div className='container'>
+            <Return />
+            {
+                isLoading ? (
+                    <Loader />
+                ) : error ? (
+                    <Error info={error} refetch={refetch} />
+                ) : (
+                    data && (
+                        <div>
+                            <h1>{data.name}</h1>
+                        </div>
+                    )
+                )
+            }
+        </div>
     )
 }
 
